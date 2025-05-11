@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于 - RRT算法可视化工具</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">RRT算法可视化工具</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/about">关于</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">关于RRT算法可视化工具</h4>
+                    </div>
+                    <div class="card-body">
+                        <h5>项目介绍</h5>
+                        <p>
+                            RRT算法可视化工具是一个基于Web的应用程序，用于可视化和比较不同的RRT（Rapidly-exploring Random Tree）路径规划算法。
+                            该工具旨在帮助学习者和研究者更直观地理解RRT算法的工作原理和性能特点。
+                        </p>
+
+                        <h5>支持的算法</h5>
+                        <ul>
+                            <li><strong>基础RRT</strong>：最基本的RRT算法，通过随机采样和树扩展来探索空间</li>
+                            <li><strong>RRT*</strong>：RRT的优化版本，通过重布线和重组树结构来提高路径质量</li>
+                            <li><strong>RRT-Connect</strong>：双向RRT算法，从起点和终点同时扩展树，提高收敛速度</li>
+                            <li><strong>Informed RRT*</strong>：RRT*的进一步优化，使用椭圆采样来限制搜索空间，加速收敛到最优解</li>
+                        </ul>
+
+                        <h5>主要功能</h5>
+                        <ul>
+                            <li>交互式创建和配置规划环境，包括设置起点、终点和障碍物</li>
+                            <li>可视化不同RRT算法的搜索过程和生成的路径</li>
+                            <li>比较不同算法的性能指标，如路径长度、规划时间和节点数量</li>
+                            <li>导出结果为图片，用于报告和演示</li>
+                        </ul>
+
+                        <h5>技术实现</h5>
+                        <p>
+                            本工具采用以下技术实现：
+                        </p>
+                        <ul>
+                            <li><strong>后端</strong>：Python + Flask，实现核心算法和RESTful API</li>
+                            <li><strong>前端</strong>：HTML5 + CSS3 + JavaScript，实现用户界面和可视化</li>
+                            <li><strong>算法</strong>：NumPy用于高效的数值计算</li>
+                            <li><strong>可视化</strong>：HTML5 Canvas用于实时渲染规划过程</li>
+                        </ul>
+
+                        <h5>使用说明</h5>
+                        <ol>
+                            <li>在左侧控制面板中设置算法参数和环境配置</li>
+                            <li>设置起点和终点</li>
+                            <li>添加障碍物（可选）</li>
+                            <li>点击"开始规划"按钮，执行算法</li>
+                            <li>在右侧面板查看规划结果和性能指标</li>
+                            <li>如需重置环境，点击"重置"按钮</li>
+                        </ol>
+
+                        <h5>开发者信息</h5>
+                        <p>
+                            本工具是作为路径规划算法学习和研究的辅助工具开发的，旨在提供直观的算法可视化和比较功能。
+                            如果您发现任何问题或有改进建议，请随时联系开发者。
+                        </p>
+
+                        <div class="mt-4 text-center">
+                            <p class="text-muted">版本 1.0.0 | © 2023 RRT可视化工具</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
