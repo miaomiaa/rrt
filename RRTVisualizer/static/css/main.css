@@ -1,0 +1,399 @@
+/*
+* RRT可视化工具主样式文件
+*/
+
+/* 全局样式 */
+:root {
+    --primary-color: #3f51b5;
+    --primary-light: #7986cb;
+    --primary-dark: #303f9f;
+    --success-color: #4caf50;
+    --danger-color: #f44336;
+    --warning-color: #ff9800;
+    --info-color: #2196f3;
+    --secondary-color: #607d8b;
+    --light-color: #f5f5f5;
+    --dark-color: #212121;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+}
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 确保内容正确渲染 */
+.container-fluid {
+    max-width: 1920px;
+    margin: 0 auto;
+}
+
+/* 背景渐变效果 */
+.navbar, .card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+}
+
+/* 导航栏样式 */
+.navbar {
+    padding: 0.75rem 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 1.2rem;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.2s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.navbar-dark .navbar-nav .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-weight: 500;
+}
+
+/* 卡片样式 */
+.card {
+    box-shadow: var(--card-shadow);
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* 标签页样式 */
+.nav-tabs .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    border: none;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+    color: white;
+    background-color: transparent;
+    border-bottom: 2px solid white;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+    color: white;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+/* 确保图标显示 */
+.fas {
+    display: inline-block;
+    width: 1.25em;
+    text-align: center;
+}
+
+/* 如果Font Awesome加载失败，使用备用图标 */
+.icon-marker {
+    display: inline-block;
+    width: 1.25em;
+    text-align: center;
+}
+
+/* 表单元素样式 */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.3rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
+}
+
+.form-range::-webkit-slider-thumb {
+    background-color: var(--primary-color);
+}
+
+.form-range::-moz-range-thumb {
+    background-color: var(--primary-color);
+}
+
+.input-group-text {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+}
+
+/* 可视化区域样式 */
+#rrtCanvas {
+    width: 100%;
+    height: auto;
+    background-color: white;
+    display: block;
+}
+
+#coordsDisplay {
+    font-size: 0.85rem;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    padding: 2px 8px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 确保Canvas响应式 */
+.card-body {
+    position: relative;
+}
+
+/* 修复手风琴样式 */
+.accordion-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    background-color: #f8f9fa;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e9ecef;
+    color: var(--primary-color);
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(0, 0, 0, 0.125);
+}
+
+.accordion-body {
+    padding: 1rem;
+    background-color: #fff;
+}
+
+/* 确保图标正确间距 */
+.accordion-button i, .btn i, .form-label i {
+    margin-right: 0.5rem;
+}
+
+/* 按钮样式 */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* 结果面板样式 */
+#resultsSummary .list-group-item {
+    padding: 0.6rem 0.8rem;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease;
+}
+
+#resultsSummary .list-group-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+#resultsSummary .list-group-item:last-child {
+    border-bottom: none;
+}
+
+/* 修复图例样式 */
+.card-footer .badge {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* 加载动画覆盖层 */
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(3px);
+}
+
+/* 表格样式 */
+.table-sm {
+    font-size: 0.9rem;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table th {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* 高亮效果 */
+.highlight {
+    transition: color 0.3s ease;
+    color: var(--primary-color) !important;
+}
+
+/* 确保颜色正确 */
+.text-success {
+    color: var(--success-color) !important;
+}
+
+.text-danger {
+    color: var(--danger-color) !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 991.98px) {
+    .card-header {
+        padding: 0.5rem 1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .col-lg-3, .col-lg-6 {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+
+    #coordsDisplay {
+        font-size: 0.75rem;
+    }
+
+    .card-footer {
+        display: block !important;
+    }
+
+    .card-footer > div {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* 确保输入框居中对齐 */
+.input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem 0.75rem;
+}
+
+/* 确保加载动画在中间 */
+.spinner-grow, .spinner-border {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+}
+
+/* 修复边距问题 */
+.m-0 {margin: 0 !important;}
+.mt-1 {margin-top: 0.25rem !important;}
+.mt-2 {margin-top: 0.5rem !important;}
+.mt-3 {margin-top: 1rem !important;}
+.me-1 {margin-right: 0.25rem !important;}
+.me-2 {margin-right: 0.5rem !important;}
+.me-3 {margin-right: 1rem !important;}
+.mb-2 {margin-bottom: 0.5rem !important;}
+.mb-3 {margin-bottom: 1rem !important;}
+.ms-1 {margin-left: 0.25rem !important;}
+.ms-2 {margin-left: 0.5rem !important;}
+.ms-auto {margin-left: auto !important;}
+
+/* 修复填充问题 */
+.p-0 {padding: 0 !important;}
+.p-2 {padding: 0.5rem !important;}
+.pt-2 {padding-top: 0.5rem !important;}
+.pb-2 {padding-bottom: 0.5rem !important;}
+
+/* 确保flex布局正确工作 */
+.d-flex {display: flex !important;}
+.flex-column {flex-direction: column !important;}
+.justify-content-between {justify-content: space-between !important;}
+.justify-content-center {justify-content: center !important;}
+.align-items-center {align-items: center !important;}
+
+/* 确保网格系统正确工作 */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -0.5rem;
+    margin-left: -0.5rem;
+}
+
+.g-2 > [class*="col-"] {
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+/* 备份图标显示 */
+.icon-success::before { content: "✓"; color: var(--success-color); }
+.icon-danger::before { content: "⚠"; color: var(--danger-color); }
+.icon-primary::before { content: "i"; color: var(--primary-color); }
+.icon-caret::before { content: "▼"; }
