@@ -1,0 +1,126 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - RRT算法可视化工具</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa, #e9edf2);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            max-width: 450px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .login-header {
+            background: linear-gradient(135deg, #3f51b5, #303f9f);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .login-body {
+            padding: 30px;
+            background: white;
+        }
+        .btn-login {
+            background: linear-gradient(135deg, #3f51b5, #303f9f);
+            border: none;
+            padding: 12px;
+            font-weight: 500;
+        }
+        .btn-login:hover {
+            background: linear-gradient(135deg, #303f9f, #1a237e);
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
+            border-color: #7986cb;
+        }
+        .input-group-text {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+        .login-footer {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+        .alert {
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-card mx-auto">
+            <div class="login-header">
+                <h3><i class="fas fa-route me-2"></i>RRT算法可视化工具</h3>
+                <p class="mb-0">登录您的账户</p>
+            </div>
+
+            <div class="login-body">
+                <!-- 显示消息 -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category if category != 'danger' else 'danger' }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" required placeholder="输入您的用户名">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="输入您的密码">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">记住我</label>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-login">登录</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="login-footer">
+                <p class="mb-1">没有账户？ <a href="{{ url_for('auth.register') }}">立即注册</a></p>
+                <p class="mb-0"><a href="{{ url_for('index') }}">返回首页</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
