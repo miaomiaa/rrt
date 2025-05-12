@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人资料 - RRT算法可视化工具</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 自定义CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <style>
+        .profile-header {
+            background: linear-gradient(135deg, #3f51b5, #303f9f);
+            color: white;
+            padding: 2rem 0;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #3f51b5;
+            margin: 0 auto 1rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #3f51b5, #303f9f);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .config-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .config-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .config-actions {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .config-card:hover .config-actions {
+            opacity: 1;
+        }
+        .nav-pills .nav-link.active {
+            background-color: #3f51b5;
+        }
+        .badge-primary {
+            background-color: #3f51b5;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-route me-2"></i>
+                RRT算法可视化工具
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">
+                            <i class="fas fa-info-circle"></i> 关于
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item active" href="{{ url_for('profile') }}"><i class="fas fa-id-card me-2"></i>个人资料</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>退出登录</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- 提示信息 -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- 个人资料头部 -->
+        <div class="profile-header text-center">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2 class="mb-1">{{ user.username }}</h2>
+            <p class="mb-2">{{ user.email }}</p>
+            <p class="mb-0 text-white-50">会员自 {{ user.created_at.split('T')[0] }}</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <!-- 侧边导航 -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-bars me-2"></i> 菜单
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="nav flex-column nav-pills" id="profileTabs" role="tablist">
+                            <a class="nav-link active" id="saved-configs-tab" data-bs-toggle="pill" href="#saved-configs" role="tab">
+                                <i class="fas fa-save me-2"></i> 保存的配置
+                            </a>
+                            <a class="nav-link" id="account-settings-tab" data-bs-toggle="pill" href="#account-settings" role="tab">
+                                <i class="fas fa-cog me-2"></i> 账户设置
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 使用统计 -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar me-2"></i> 使用统计
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>保存的配置</span>
+                            <span class="badge bg-primary rounded-pill">{{ configs|length }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>上次登录</span>
+                            <span class="text-muted">{{ user.last_login.split('T')[0] if user.last_login else '无记录' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <!-- 内容区域 -->
+                <div class="tab-content" id="profileTabsContent">
+                    <!-- 保存的配置 -->
+                    <div class="tab-pane fade show active" id="saved-configs" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-save me-2"></i> 保存的配置</span>
+                                <a href="/" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i> 创建新配置</a>
+                            </div>
+                            <div class="card-body">
+                                {% if configs %}
+                                    <div class="row">
+                                        {% for name, config in configs.items() %}
+                                            <div class="col-md-6 mb-3">
+                                                <div class="card config-card">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{{ name }}</h5>
+                                                        <p class="card-text text-muted small">
+                                                            创建于: {{ config.created_at.split('T')[0] }}
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="badge bg-primary me-1">{{ config.data.algorithm }}</span>
+                                                            {% if config.data.success %}
+                                                                <span class="badge bg-success me-1">路径已找到</span>
+                                                            {% else %}
+                                                                <span class="badge bg-warning me-1">规划未成功</span>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="config-actions mt-3">
+                                                            <div class="btn-group btn-group-sm w-100">
+                                                                <a href="{{ url_for('load_config', config_name=name) }}" class="btn btn-primary">
+                                                                    <i class="fas fa-folder-open me-1"></i> 加载
+                                                                </a>
+                                                                <button type="button" class="btn btn-outline-danger"
+                                                                        onclick="confirmDelete('{{ name }}')">
+                                                                    <i class="fas fa-trash-alt"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-folder-open text-muted" style="font-size: 3rem;"></i>
+                                        <p class="mt-3">您还没有保存任何配置</p>
+                                        <a href="/" class="btn btn-primary">
+                                            <i class="fas fa-plus me-1"></i> 创建新配置
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 账户设置 -->
+                    <div class="tab-pane fade" id="account-settings" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-user-edit me-2"></i> 修改个人信息
+                            </div>
+                            <div class="card-body">
+                                <form id="updateProfileForm" method="post" action="{{ url_for('update_profile') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">电子邮箱</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            <input type="email" class="form-control" id="email" name="email"
+                                                   value="{{ user.email }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>保存修改
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <i class="fas fa-lock me-2"></i> 修改密码
+                            </div>
+                            <div class="card-body">
+                                <form id="changePasswordForm" method="post" action="{{ url_for('change_password') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="mb-3">
+                                        <label for="current_password" class="form-label">当前密码</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                            <input type="password" class="form-control" id="current_password"
+                                                   name="current_password" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="new_password" class="form-label">新密码</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                            <input type="password" class="form-control" id="new_password"
+                                                   name="new_password" required minlength="8">
+                                        </div>
+                                        <div class="form-text">
+                                            密码必须至少8个字符，包含字母和数字
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirm_password" class="form-label">确认新密码</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                            <input type="password" class="form-control" id="confirm_password"
+                                                   name="confirm_password" required>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-check-circle me-2"></i>修改密码
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal fade" id="deleteConfigModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-danger me-2"></i>删除确认</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>您确定要删除配置 "<span id="configToDelete"></span>" 吗？</p>
+                    <p class="text-danger">此操作无法撤销。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <form id="deleteConfigForm" method="post" action="{{ url_for('delete_config') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" id="deleteConfigName" name="config_name">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-2"></i>删除
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 密码表单验证
+        document.getElementById('changePasswordForm')?.addEventListener('submit', function(event) {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            if (newPassword !== confirmPassword) {
+                alert('两次输入的新密码不匹配');
+                event.preventDefault();
+                return;
+            }
+
+            if (!/\d/.test(newPassword) || !/[a-zA-Z]/.test(newPassword)) {
+                alert('密码必须包含至少一个字母和一个数字');
+                event.preventDefault();
+                return;
+            }
+        });
+
+        // 确认删除配置
+        function confirmDelete(configName) {
+            document.getElementById('configToDelete').textContent = configName;
+            document.getElementById('deleteConfigName').value = configName;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfigModal'));
+            deleteModal.show();
+        }
+    </script>
+</body>
+</html>
