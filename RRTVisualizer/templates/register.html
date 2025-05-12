@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - RRT算法可视化工具</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 自定义CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <style>
+        .auth-container {
+            max-width: 450px;
+            margin: 2rem auto;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #3f51b5, #303f9f);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .auth-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
+        .btn-submit {
+            padding: 0.6rem;
+            font-weight: 500;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.25);
+            border-color: #3f51b5;
+        }
+        .password-requirements {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .alert-dismissible .btn-close {
+            padding: 0.75rem 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-route me-2"></i>
+                RRT算法可视化工具
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-home"></i> 首页
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">
+                            <i class="fas fa-info-circle"></i> 关于
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">
+                            <i class="fas fa-sign-in-alt"></i> 登录
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/register">
+                            <i class="fas fa-user-plus"></i> 注册
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container auth-container">
+        <!-- 提示信息 -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <div class="card-header text-center">
+                <div class="auth-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h3 class="mb-0">创建账户</h3>
+                <p class="text-white-50 mb-0">注册RRT可视化工具账户</p>
+            </div>
+            <div class="card-body p-4">
+                <form id="registerForm" method="post" action="{{ url_for('register') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" required
+                                   placeholder="选择一个用户名" minlength="3" maxlength="20">
+                        </div>
+                        <div class="form-text">用户名长度3-20个字符，只能包含字母、数字和下划线</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">电子邮箱</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" required
+                                   placeholder="输入您的电子邮箱">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">密码</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" required
+                                   placeholder="创建密码" minlength="8">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-requirements mt-1">
+                            <p class="mb-1">密码必须满足:</p>
+                            <ul class="ps-3 mb-0">
+                                <li>至少8个字符</li>
+                                <li>包含字母和数字</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">确认密码</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required
+                                   placeholder="再次输入密码">
+                        </div>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="agreement" name="agreement" required>
+                        <label class="form-check-label" for="agreement">我同意<a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">服务条款</a>和<a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">隐私政策</a></label>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-submit"><i class="fas fa-user-plus me-2"></i>注册</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3">
+                <div>已有账户? <a href="{{ url_for('login') }}" class="text-primary">立即登录</a></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 服务条款模态框 -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">服务条款</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>欢迎使用RRT算法可视化工具！</p>
+                    <p>以下是使用本服务的条款和条件，请您仔细阅读。通过注册并使用本服务，您同意受以下条款的约束。</p>
+
+                    <h6>1. 服务描述</h6>
+                    <p>RRT算法可视化工具是一个用于可视化和比较不同RRT路径规划算法的在线工具。</p>
+
+                    <h6>2. 用户账户</h6>
+                    <p>您须对保持密码的保密性负责，并对使用您的账户进行的所有活动承担责任。</p>
+
+                    <h6>3. 用户行为</h6>
+                    <p>您同意不使用本服务从事任何违法或不当的活动。</p>
+
+                    <h6>4. 知识产权</h6>
+                    <p>本服务及其原始内容、功能和设计受版权和商标法保护。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐私政策模态框 -->
+    <div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="privacyModalLabel">隐私政策</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>本隐私政策描述了我们如何收集、使用和分享您的信息。</p>
+
+                    <h6>1. 收集的信息</h6>
+                    <p>我们收集您在注册和使用服务时提供的信息，包括用户名、电子邮件地址和密码。</p>
+
+                    <h6>2. 信息使用</h6>
+                    <p>我们使用收集的信息来提供、维护和改进我们的服务，并开发新的服务。</p>
+
+                    <h6>3. 信息共享</h6>
+                    <p>我们不会出售、出租或分享您的个人信息，除非得到您的明确许可。</p>
+
+                    <h6>4. 数据安全</h6>
+                    <p>我们采取合理的措施保护您的个人信息免受未经授权的访问、使用或披露。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 自定义JS -->
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+    <script>
+        // 表单验证
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            const username = document.getElementById('username').value;
+
+            // 用户名验证
+            if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+                alert('用户名必须是3-20个字符，只能包含字母、数字和下划线');
+                event.preventDefault();
+                return;
+            }
+
+            // 密码验证
+            if (password.length < 8) {
+                alert('密码必须至少8个字符');
+                event.preventDefault();
+                return;
+            }
+
+            if (!/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+                alert('密码必须包含至少一个字母和一个数字');
+                event.preventDefault();
+                return;
+            }
+
+            // 确认密码
+            if (password !== confirmPassword) {
+                alert('两次输入的密码不匹配');
+                event.preventDefault();
+                return;
+            }
+        });
+
+        // 切换密码可见性
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    </script>
+</body>
+</html>
